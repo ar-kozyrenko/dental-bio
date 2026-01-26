@@ -10,57 +10,129 @@ export class SignUpPage {
         this.page = page
     }
 
-    async fillSignUpFormWithAllFields() {
+    async fillSignUpFormWithAllFields(
+        email: string,
+        firstName: string,
+        lastName: string,
+        day: string,
+        month: string,
+        year: string,
+        offerCode: string,
+        password: string,
+        confirmPassword?: string
+    ) {
         await this.locator.selectTitleDropdownButton.scrollIntoViewIfNeeded()
         await this.locator.selectTitleDropdownButton.click()
         await this.locator.drButton.click()
-        await this.locator.emailInput.fill('kirzapardi@necub.com')
-        await this.locator.firstNameInput.fill('Joe')
-        await this.locator.lastNameInput.fill('Jones')
-        await this.locator.dayInput.fill('01')
-        await this.locator.monthInput.fill('01')
-        await this.locator.yearInput.fill('2010')
+        await this.locator.emailInput.fill(email)
+        await this.locator.firstNameInput.fill(firstName)
+        await this.locator.lastNameInput.fill(lastName)
+        await this.locator.dayInput.fill(day)
+        await this.locator.monthInput.fill(month)
+        await this.locator.yearInput.fill(year)
         await this.locator.selectPositionDropdownButton.click()
         await this.locator.dentistButton.click()
         await this.locator.selectCountryDropdownButton.click()
         await this.locator.unitedKingdomButton.click()
-        await this.locator.offerCodeInput.fill('123')
-        await this.locator.passwordInput.fill('Ab12345$')
-        await this.locator.confirmPasswordInput.fill('Ab12345$')
+        await this.locator.offerCodeInput.fill(offerCode)
+        await this.locator.passwordInput.fill(password) //'Ab12345$'
+        await this.locator.confirmPasswordInput.fill(
+            confirmPassword ?? password
+        ) // fill password if there is no confirm password
     }
     async submitForm() {
+        await this.locator.claimButtonForm.scrollIntoViewIfNeeded()
+        // Ждем чтобы кнопка стала кликабельной (не disabled, не covered)
+        await expect(this.locator.claimButtonForm).toBeEnabled()
+
+        // // Клик с небольшой задержкой для стабильности
+        // await this.locator.claimButtonForm.click({ delay: 100 })
         await this.locator.claimButtonForm.click()
     }
-    async claimYourName() {
+    async claimYourName(yourname: string) {
         await this.page.goto('https://dental.bio/')
-        await this.locator.yourNameInput.fill('test12')
-        await expect(this.locator.yourNameInput).toHaveValue('test12')
+        await this.locator.yourNameInput.fill(yourname)
+        await expect(this.locator.yourNameInput).toHaveValue(yourname)
         await this.locator.claimButton.click()
         await expect(this.locator.almostThereText).toBeVisible()
     }
-}
+    async verifyYourEmailPageAvailable() {
+        await expect(this.locator.verifyYourEmailPage).toBeVisible()
+    }
+    async verifyRequiredFieldsErrorsValidation() {
+        await expect(this.locator.formErrorMessage).toBeVisible()
+        await expect(this.locator.formErrorMessage).toContainText(
+            'Oops! It looks like you missed some fields.'
+        )
+        const requiredFields = [
+            this.locator.selectTitleContainer,
+            this.locator.emailContainer,
+            this.locator.firstNameContainer,
+            this.locator.lastNameContainer,
+            this.locator.selectPositionContainer,
+            this.locator.passwordContainer,
+            this.locator.confirmPasswordContainer,
+        ]
+        for (const field of requiredFields) {
+            await expect(field).toHaveClass(/border-red-500/)
+        }
+    }
 
-//  await page.goto('https://dental.bio/')
-//     await signUpPage.yourNameInput.fill('test12')
-//     await expect(signUpPage.yourNameInput).toHaveValue('test12')
-//     await signUpPage.claimButton.click()
-//     await expect(signUpPage.almostThereText).toBeVisible()
-//
-//await signUpPage.selectTitleDropdownButton.scrollIntoViewIfNeeded()
-//     await signUpPage.selectTitleDropdownButton.click()
-//     await signUpPage.drButton.click()
-//     await signUpPage.emailInput.fill('kirzapardi@necub.com')
-//     await signUpPage.firstNameInput.fill('Joe')
-//     await signUpPage.lastNameInput.fill('Jones')
-//     await signUpPage.dayInput.fill('01')
-//     await signUpPage.monthInput.fill('01')
-//     await signUpPage.yearInput.fill('2010')
-//     await signUpPage.selectPositionDropdownButton.click()
-//     await signUpPage.dentistButton.click()
-//     await signUpPage.selectCountryDropdownButton.click()
-//     await signUpPage.unitedKingdomButton.click()
-//     await signUpPage.offerCodeInput.fill('123')
-//     await signUpPage.passwordInput.fill('Ab12345$')
-//     await signUpPage.confirmPasswordInput.fill('Ab12345$')
-//     await signUpPage.claimButtonForm.click()
-//     //await expect(signUpPage.verifyYourEmailPage).toBeVisible()
+    async expectConfirmPasswordError() {
+        expect(this.locator.confirmPasswordContainer).toHaveClass(
+            /border-red-500/
+        )
+    }
+
+    async selectDateInDatePicker() {
+        // Убедимся что элемент готов к взаимодействию
+        await this.locator.datePickerButton.waitFor({ state: 'visible' })
+        await this.locator.datePickerButton.waitFor({ state: 'attached' })
+
+        // Клик с небольшой задержкой
+        await this.locator.datePickerButton.click({ delay: 100 })
+
+        // Явное ожидание появления календаря
+        // await this.page.waitForSelector(
+        //     'select[aria-label="Choose the Month"]',
+        //     { state: 'visible', timeout: 10000 }
+        // )
+
+        await this.locator.chooseMonthButton.selectOption('7')
+        await this.locator.chooseYearButton.selectOption('2012')
+        await this.locator.selectDayButton.click()
+
+        await expect(this.locator.selectedDayButton).toHaveValue('07')
+        await expect(this.locator.selectedMonthButton).toHaveValue('08')
+        await expect(this.locator.selectedYearButton).toHaveValue('2012')
+    }
+
+    async searchCountry(countryName: string) {
+        await this.locator.selectCountryButton.scrollIntoViewIfNeeded()
+        await this.locator.selectCountryButton.click()
+        await expect(this.locator.countrySearchInput).toBeVisible()
+        await this.locator.countrySearchInput.fill(countryName)
+        await expect(this.locator.countrySearchInput).toHaveValue(countryName)
+    }
+
+    async expectFirstCountryToBe(countryName: string) {
+        await expect(this.locator.firstCountryButton).toBeVisible()
+        await expect(this.locator.firstCountryButton).toHaveText(countryName)
+    }
+
+    async expectOnlyOneCountryResult() {
+        await expect(this.locator.countryButtons).toBeVisible()
+        await expect(this.locator.countryButtons).toHaveCount(1)
+    }
+
+    async expectFirstCountryIsBrazil() {
+        const countriesWithSubstring = this.locator.countryButtons
+        await expect(countriesWithSubstring.first()).toHaveText('Brazil')
+    }
+
+    async expectNoOptionsFoundIsDisplayed() {
+        await expect(this.locator.noOptionsFoundText).toContainText(
+            'No options found'
+        )
+    }
+}
