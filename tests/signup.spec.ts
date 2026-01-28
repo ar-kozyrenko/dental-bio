@@ -1,7 +1,7 @@
-import { test, expect } from '@playwright/test'
+import { test } from '@playwright/test'
 import { SignUpPage } from '../pages/SignUpPage'
 
-test('verify your email page is displayed - after filling out the signup form with all the fields are filled', async ({
+test('submit the form with all the fields are filled - verify your email page is displayed', async ({
     page,
 }) => {
     const email = 'nortidarta@necub.com'
@@ -12,8 +12,9 @@ test('verify your email page is displayed - after filling out the signup form wi
     const year = '2010'
     const offerCode = '123'
     const password = 'Ab12345$'
+    const userName = 'test15'
     const signUpPage = new SignUpPage(page)
-    await signUpPage.claimYourName('test15')
+    await signUpPage.claimYourName(userName)
     await signUpPage.fillSignUpFormWithAllFields(
         email,
         firstName,
@@ -28,11 +29,19 @@ test('verify your email page is displayed - after filling out the signup form wi
     // await signUpPage.verifyYourEmailPageAvailable()
 })
 
-test('required fields are highlighted and error message is - after sending empty form', async ({
+test('username is taken - error is displayed', async ({ page }) => {
+    const signUpPage = new SignUpPage(page)
+    const takenUserName = 'test12'
+    await signUpPage.claimYourName(takenUserName)
+    await signUpPage.expectTakenUsernameError()
+})
+
+test('submit the form with empty fields - required fields are highlighted and error message is', async ({
     page,
 }) => {
+    const userName = 'test15'
     const signUpPage = new SignUpPage(page)
-    await signUpPage.claimYourName('test15')
+    await signUpPage.claimYourName(userName)
     await signUpPage.submitForm()
     await signUpPage.verifyRequiredFieldsErrorsValidation()
 })
@@ -49,8 +58,9 @@ test('password confirmation is failed - the field with red borders', async ({
     const offerCode = '123'
     const password = 'Ab12345$'
     const confirmPassword = 'Ab12345!'
+    const userName = 'test15'
     const signUpPage = new SignUpPage(page)
-    await signUpPage.claimYourName('test15')
+    await signUpPage.claimYourName(userName)
     await signUpPage.fillSignUpFormWithAllFields(
         email,
         firstName,
@@ -66,37 +76,43 @@ test('password confirmation is failed - the field with red borders', async ({
     await signUpPage.expectConfirmPasswordError()
 })
 
-test('select date in date-picker - verify the selected field value', async ({
+test('select date in date-picker - verify the selected value in the field', async ({
     page,
 }) => {
     const signUpPage = new SignUpPage(page)
-    await signUpPage.claimYourName('test15')
+    const userName = 'test15'
+    await signUpPage.claimYourName(userName)
     await signUpPage.selectDateInDatePicker()
 })
 
-test('search for a country - full marching', async ({ page }) => {
+test('search for a country (Canada) by full matching - only one result is displayed', async ({
+    page,
+}) => {
     const searchedCountry: string = 'Canada'
+    const userName = 'test15'
     const signUpPage = new SignUpPage(page)
-    await signUpPage.claimYourName('test12')
+    await signUpPage.claimYourName(userName)
     await signUpPage.searchCountry(searchedCountry)
     await signUpPage.expectFirstCountryToBe(searchedCountry)
     await signUpPage.expectOnlyOneCountryResult()
 })
 
-test('search for a country - first country is Brazil on searching by "br"', async ({
+test('search for a country by "br" substring - first country is Brazil in the list', async ({
     page,
 }) => {
     const signUpPage = new SignUpPage(page)
-    await signUpPage.claimYourName('test12')
+    const userName = 'test15'
+    await signUpPage.claimYourName(userName)
     await signUpPage.searchCountry('br')
     await signUpPage.expectFirstCountryIsBrazil()
 })
 
-test('search for a country - no options found is displayed on entering "klmn"', async ({
+test('search for a country by not valid "klmn" substring - no options found is displayed', async ({
     page,
 }) => {
     const signUpPage = new SignUpPage(page)
-    await signUpPage.claimYourName('test12')
+    const userName = 'test15'
+    await signUpPage.claimYourName(userName)
     await signUpPage.searchCountry('klmn')
     await signUpPage.expectNoOptionsFoundIsDisplayed()
 })

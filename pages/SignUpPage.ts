@@ -10,6 +10,20 @@ export class SignUpPage {
         this.page = page
     }
 
+    async claimYourName(yourname: string) {
+        await this.page.goto('https://dental.bio/')
+        await this.locator.yourNameInput.fill(yourname)
+        await expect(this.locator.yourNameInput).toHaveValue(yourname)
+        await this.locator.claimButton.click()
+    }
+
+    async expectTakenUsernameError(): Promise<void> {
+        await expect(this.locator.userNameTakenErrorContainer).toContainText([
+            'Oops! That username is taken.',
+            'Choose a different one or get creative!',
+        ])
+    }
+
     async fillSignUpFormWithAllFields(
         email: string,
         firstName: string,
@@ -49,13 +63,7 @@ export class SignUpPage {
         // await this.locator.claimButtonForm.click({ delay: 100 })
         await this.locator.claimButtonForm.click()
     }
-    async claimYourName(yourname: string) {
-        await this.page.goto('https://dental.bio/')
-        await this.locator.yourNameInput.fill(yourname)
-        await expect(this.locator.yourNameInput).toHaveValue(yourname)
-        await this.locator.claimButton.click()
-        await expect(this.locator.almostThereText).toBeVisible()
-    }
+
     async verifyYourEmailPageAvailable() {
         await expect(this.locator.verifyYourEmailPage).toBeVisible()
     }
@@ -88,8 +96,6 @@ export class SignUpPage {
         // Убедимся что элемент готов к взаимодействию
         await this.locator.datePickerButton.waitFor({ state: 'visible' })
         await this.locator.datePickerButton.waitFor({ state: 'attached' })
-
-        // Клик с небольшой задержкой
         await this.locator.datePickerButton.click({ delay: 100 })
 
         // Явное ожидание появления календаря
@@ -97,6 +103,7 @@ export class SignUpPage {
         //     'select[aria-label="Choose the Month"]',
         //     { state: 'visible', timeout: 10000 }
         // )
+        await this.locator.chooseMonthButton.isVisible()
 
         await this.locator.chooseMonthButton.selectOption('7')
         await this.locator.chooseYearButton.selectOption('2012')
@@ -126,8 +133,9 @@ export class SignUpPage {
     }
 
     async expectFirstCountryIsBrazil() {
-        const countriesWithSubstring = this.locator.countryButtons
-        await expect(countriesWithSubstring.first()).toHaveText('Brazil')
+        const firstCountryWithSubstring = this.locator.countryButtons.first()
+        await expect(firstCountryWithSubstring).toBeVisible({ timeout: 10000 })
+        await expect(firstCountryWithSubstring).toHaveText('Brazil')
     }
 
     async expectNoOptionsFoundIsDisplayed() {

@@ -11,7 +11,8 @@ export default defineConfig({
     forbidOnly: !!process.env.CI, // запретить test.only на CI
     retries: process.env.CI ? 2 : 0, // повторять падения только на CI
     workers: process.env.CI ? 1 : undefined, // ограничить количество воркеров на CI
-    reporter: 'html', // HTML отчет
+
+    reporter: [['html', { open: 'always' }]],
 
     use: {
         // базовые настройки для всех тестов

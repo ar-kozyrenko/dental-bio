@@ -42,6 +42,7 @@ export class SignUpPageLocators {
     countryButtons: Locator
     firstCountryButton: Locator
     noOptionsFoundText: Locator
+    userNameTakenErrorContainer: Locator
 
     constructor(page: Page) {
         this.page = page
@@ -58,6 +59,9 @@ export class SignUpPageLocators {
         this.selectTitleDropdownButton = page.locator(
             '//*[text() = "Select Title"]'
         )
+        this.userNameTakenErrorContainer = page
+            .locator('div')
+            .filter({ hasText: 'Oops' })
         this.drButton = page.locator('//button[text() = "Dr"]')
         this.emailInput = page.locator('input[name="email"]')
         this.firstNameInput = page.locator('input[name="firstName"]')
