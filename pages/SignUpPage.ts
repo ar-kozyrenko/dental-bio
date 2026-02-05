@@ -1,5 +1,10 @@
 import { Page, expect } from '@playwright/test'
 import { SignUpPageLocators } from './locators/SignUpPageLocators'
+import { SignUpFormData } from '../types/SignUp/SignUpFormData'
+import { Title } from '../types/SignUp/Title'
+import { Country } from '../types/SignUp/Country'
+import { Position } from '../types/SignUp/Position'
+import { BirthDate } from '../types/SignUp/BirthDate'
 
 export class SignUpPage {
     locator: SignUpPageLocators
@@ -10,10 +15,10 @@ export class SignUpPage {
         this.page = page
     }
 
-    async claimYourName(yourname: string) {
+    async claimYourName(username: string) {
         await this.page.goto('https://dental.bio/')
-        await this.locator.yourNameInput.fill(yourname)
-        await expect(this.locator.yourNameInput).toHaveValue(yourname)
+        await this.locator.yourNameInput.fill(username)
+        await expect(this.locator.yourNameInput).toHaveValue(username)
         await this.locator.claimButton.click()
     }
 
@@ -24,36 +29,52 @@ export class SignUpPage {
         ])
     }
 
-    async fillSignUpFormWithAllFields(
-        email: string,
-        firstName: string,
-        lastName: string,
-        day: string,
-        month: string,
-        year: string,
-        offerCode: string,
-        password: string,
-        confirmPassword?: string
-    ) {
-        await this.locator.selectTitleDropdownButton.scrollIntoViewIfNeeded()
-        await this.locator.selectTitleDropdownButton.click()
-        await this.locator.drButton.click()
-        await this.locator.emailInput.fill(email)
-        await this.locator.firstNameInput.fill(firstName)
-        await this.locator.lastNameInput.fill(lastName)
-        await this.locator.dayInput.fill(day)
-        await this.locator.monthInput.fill(month)
-        await this.locator.yearInput.fill(year)
-        await this.locator.selectPositionDropdownButton.click()
-        await this.locator.dentistButton.click()
-        await this.locator.selectCountryDropdownButton.click()
-        await this.locator.unitedKingdomButton.click()
-        await this.locator.offerCodeInput.fill(offerCode)
-        await this.locator.passwordInput.fill(password) //'Ab12345$'
+    async fillSignUpFormWithAllFields(form: SignUpFormData) {
+        await this.selectTitle(form.title)
+        await this.locator.emailInput.fill(form.email)
+        await this.locator.firstNameInput.fill(form.firstName)
+        await this.locator.lastNameInput.fill(form.lastName)
+
+        if (form.birthDate) {
+            await this.fillBirthDate(form.birthDate)
+        }
+
+        await this.selectPosition(form.position)
+
+        if (form.country) {
+            await this.selectCountry(form.country)
+        }
+
+        if (form.offerCode) {
+            await this.locator.offerCodeInput.fill(form.offerCode)
+        }
+        await this.locator.passwordInput.fill(form.password) //'Ab12345$'
         await this.locator.confirmPasswordInput.fill(
-            confirmPassword ?? password
+            form.confirmPassword ?? form.password
         ) // fill password if there is no confirm password
     }
+    async selectTitle(title: Title) {
+        await this.locator.selectTitleDropdownButton.scrollIntoViewIfNeeded()
+        await this.locator.selectTitleDropdownButton.click()
+        await this.locator.selectOptionByText(title).click()
+    }
+
+    async selectCountry(country: Country) {
+        await this.locator.selectCountryDropdownButton.click()
+        await this.locator.selectOptionByText(country).click()
+    }
+
+    async selectPosition(position: Position) {
+        await this.locator.selectPositionDropdownButton.click()
+        await this.locator.selectOptionByText(position).click()
+    }
+
+    async fillBirthDate(birthdate: BirthDate) {
+        await this.locator.dayInput.fill(birthdate.day)
+        await this.locator.monthInput.fill(birthdate.month)
+        await this.locator.yearInput.fill(birthdate.year)
+    }
+
     async submitForm() {
         await this.locator.claimButtonForm.scrollIntoViewIfNeeded()
         // Ждем чтобы кнопка стала кликабельной (не disabled, не covered)

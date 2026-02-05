@@ -49,12 +49,7 @@ export class SignUpPageLocators {
         this.yourNameInput = page.locator(
             '(//input[@placeholder="yourname"])[1]'
         )
-        this.claimButton = page.locator('(//button[@type="submit"])[1]') //(//*[contains(text(), "Claim")])[1]
-        // this.claimButton = page
-        //     .locator('form')
-        //     .filter({ has: page.locator('input[placeholder="yourname"]') })
-        //     .first()
-        // .locator('button[type="submit"]')
+        this.claimButton = page.locator('(//button[@type="submit"])[1]')
         this.almostThereText = page.locator('//*[text()="Almost there"]')
         this.selectTitleDropdownButton = page.locator(
             '//*[text() = "Select Title"]'
@@ -84,9 +79,6 @@ export class SignUpPageLocators {
         this.confirmPasswordInput = page.locator(
             'input[placeholder="Confirm Password"]'
         )
-        // this.claimButtonForm = page.locator(
-        //     '//button[contains(text(), "Claim @")]'
-        // )
 
         this.claimButtonForm = page.getByRole('button', { name: /^Claim @/ })
         this.verifyYourEmailPage = page.locator(
@@ -139,5 +131,8 @@ export class SignUpPageLocators {
         this.noOptionsFoundText = page.locator(
             '//input[@placeholder="Search ..."]/following-sibling::p'
         )
+    }
+    selectOptionByText(text: string): Locator {
+        return this.page.getByRole('button', { name: text })
     }
 }
