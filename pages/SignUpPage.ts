@@ -7,26 +7,12 @@ import { Position } from '../types/SignUp/Position'
 import { BirthDate } from '../types/SignUp/BirthDate'
 
 export class SignUpPage {
-    locator: SignUpPageLocators
     page: Page
+    locator: SignUpPageLocators
 
     constructor(page: Page) {
-        this.locator = new SignUpPageLocators(page)
         this.page = page
-    }
-
-    async claimYourName(username: string) {
-        await this.page.goto('https://dental.bio/')
-        await this.locator.yourNameInput.fill(username)
-        await expect(this.locator.yourNameInput).toHaveValue(username)
-        await this.locator.claimButton.click()
-    }
-
-    async expectTakenUsernameError(): Promise<void> {
-        await expect(this.locator.userNameTakenErrorContainer).toContainText([
-            'Oops! That username is taken.',
-            'Choose a different one or get creative!',
-        ])
+        this.locator = new SignUpPageLocators(page)
     }
 
     async fillSignUpFormWithAllFields(form: SignUpFormData) {
@@ -129,7 +115,9 @@ export class SignUpPage {
         await this.locator.chooseMonthButton.selectOption('7')
         await this.locator.chooseYearButton.selectOption('2012')
         await this.locator.selectDayButton.click()
+    }
 
+    async expectDateIsSelected() {
         await expect(this.locator.selectedDayButton).toHaveValue('07')
         await expect(this.locator.selectedMonthButton).toHaveValue('08')
         await expect(this.locator.selectedYearButton).toHaveValue('2012')

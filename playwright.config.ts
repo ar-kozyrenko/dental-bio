@@ -11,6 +11,7 @@ export default defineConfig({
     forbidOnly: !!process.env.CI, // запретить test.only на CI
     retries: process.env.CI ? 2 : 0, // повторять падения только на CI
     workers: process.env.CI ? 1 : undefined, // ограничить количество воркеров на CI
+    outputDir: 'test-results',
 
     reporter: [['html', { open: 'always' }]],
 
@@ -22,6 +23,8 @@ export default defineConfig({
         actionTimeout: 15000,
         viewport: { width: 1280, height: 720 },
         ignoreHTTPSErrors: true, // иногда полезно для dev-серверов с самоподписанным SSL
+        baseURL: 'https://dental.bio',
+        screenshot: 'only-on-failure',
     },
 
     projects: [

@@ -4,6 +4,7 @@ import { Country } from '../types/SignUp/Country'
 import { Position } from '../types/SignUp/Position'
 import { Title } from '../types/SignUp/Title'
 import { BirthDate } from '../types/SignUp/BirthDate'
+import { BaseTestData } from './BaseTestData'
 
 export interface Name {
     firstName: string
@@ -13,21 +14,9 @@ export interface Name {
 export type Password = string
 
 export class SignUpTestData {
-    private static readonly EMAIL_PREFIX = 'wtl-auto-'
-    private static readonly USERNAME_PREFIX = 'wtl-auto-'
-
-    private static generateBaseIdentity(): string {
-        return faker.string.alphanumeric(8).toLowerCase()
-    }
-    static generateUserName(): string {
-        const base = this.generateBaseIdentity()
-        const username = `${this.USERNAME_PREFIX}${base}`
-        return username
-    }
-
     static generateEmail(): string {
-        const base = this.generateBaseIdentity()
-        const email = `${this.EMAIL_PREFIX}${base}@test.com`
+        const base = BaseTestData.generateBaseIdentity()
+        const email = `${BaseTestData.EMAIL_PREFIX}${base}@test.com`
         return email
     }
 
