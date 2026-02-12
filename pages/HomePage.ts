@@ -1,6 +1,6 @@
 import { Page, expect } from '@playwright/test'
 import { HomePageLocators } from './locators/HomePageLocators'
-import { BasePage } from './base/BasePage'
+import { BasePage } from '../base/BasePage'
 
 export class HomePage {
     page: Page

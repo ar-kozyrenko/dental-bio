@@ -1,5 +1,5 @@
 import { HomePage } from '../pages/HomePage'
-import { test } from '@playwright/test'
+import { test } from '../fixtures/baseFixture'
 import { HomePageTestData } from '../test-data/HomePageTestData'
 
 test.beforeEach('Open the HomePage', async ({ page }) => {
@@ -9,16 +9,14 @@ test.beforeEach('Open the HomePage', async ({ page }) => {
 
 test.describe('Home page - user name validation', () => {
     test('username is unique - registration page is opened', async ({
-        page,
+        pageManager,
     }) => {
-        const homePage = new HomePage(page)
         const uniqueUserName = HomePageTestData.generateUniqueUserName()
 
-        await homePage.claimUniqueUserName(uniqueUserName)
+        await pageManager.homePage.claimUniqueUserName(uniqueUserName)
     })
-    test('username is taken - error is displayed', async ({ page }) => {
-        const homePage = new HomePage(page)
+    test('username is taken - error is displayed', async ({ pageManager }) => {
         const takenUserName = HomePageTestData.returnTakenUserName()
-        await homePage.claimTakenUsername(takenUserName)
+        await pageManager.homePage.claimTakenUsername(takenUserName)
     })
 })
