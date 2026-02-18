@@ -1,15 +1,16 @@
-import { Page, expect } from '@playwright/test'
+import { Page } from '@playwright/test'
 import { LoginFormData } from '../types/LogIn/LogInFormData'
 import { LoginPageLocators } from './locators/LoginPageLocators'
+import { BasePage } from '../base/BasePage'
 
-export class LoginPage {
-    page: Page
+export class LoginPage extends BasePage {
     locator: LoginPageLocators
 
     constructor(page: Page) {
-        this.page = page
+        super(page)
         this.locator = new LoginPageLocators(page)
     }
+
     async fillEmail(email: string): Promise<void> {
         await this.locator.emailInput.fill(email)
     }
@@ -24,6 +25,7 @@ export class LoginPage {
         await this.fillEmail(form.email)
         await this.fillPassword(form.password)
     }
+
     async getEmptyEmailValidationError(): Promise<string> {
         return await this.locator.emailInput.evaluate(
             (el: HTMLInputElement) => el.validationMessage

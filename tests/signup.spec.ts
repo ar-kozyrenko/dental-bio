@@ -7,7 +7,7 @@ import { HomePageTestData } from '../test-data/HomePageTestData'
 test.describe('Sign Up - Registration flow', () => {
     test.beforeEach('Claim a unique username', async ({ pageManager }) => {
         const userName = HomePageTestData.generateUniqueUserName()
-        await pageManager.homePage.openHomePage('/')
+        await pageManager.homePage.openPage('/')
         await pageManager.homePage.claimUniqueUserName(userName)
     })
 

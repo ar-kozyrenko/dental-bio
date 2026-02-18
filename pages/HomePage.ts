@@ -2,18 +2,12 @@ import { Page, expect } from '@playwright/test'
 import { HomePageLocators } from './locators/HomePageLocators'
 import { BasePage } from '../base/BasePage'
 
-export class HomePage {
-    page: Page
+export class HomePage extends BasePage {
     locator: HomePageLocators
 
     constructor(page: Page) {
-        this.page = page
+        super(page)
         this.locator = new HomePageLocators(page)
-    }
-
-    async openHomePage(url: string): Promise<void> {
-        const basePage = new BasePage(this.page)
-        basePage.openPage(url)
     }
 
     async claimYourName(username: string): Promise<void> {

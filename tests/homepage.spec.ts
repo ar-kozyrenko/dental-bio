@@ -1,10 +1,8 @@
-import { HomePage } from '../pages/HomePage'
 import { test } from '../fixtures/baseFixture'
 import { HomePageTestData } from '../test-data/HomePageTestData'
 
-test.beforeEach('Open the HomePage', async ({ page }) => {
-    const homePage = new HomePage(page)
-    await homePage.openHomePage('/')
+test.beforeEach('Open the HomePage', async ({ pageManager }) => {
+    await pageManager.homePage.openPage('/')
 })
 
 test.describe('Home page - user name validation', () => {
