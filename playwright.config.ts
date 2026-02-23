@@ -1,4 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 export default defineConfig({
     testDir: './tests',
@@ -17,7 +20,7 @@ export default defineConfig({
         actionTimeout: 15000,
         viewport: { width: 1280, height: 720 },
         ignoreHTTPSErrors: true,
-        baseURL: 'https://dental.bio',
+        baseURL: process.env.BASE_URL || 'https://dental.bio',
         screenshot: 'only-on-failure',
     },
 

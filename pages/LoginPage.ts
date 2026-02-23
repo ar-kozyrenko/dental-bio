@@ -26,12 +26,12 @@ export class LoginPage extends BasePage {
         await this.fillPassword(form.password)
     }
 
-    async getEmptyEmailValidationError(): Promise<string> {
+    async getEmptyEmailValidationMessage(): Promise<string> {
         return await this.locator.emailInput.evaluate(
             (el: HTMLInputElement) => el.validationMessage
         )
     }
-    async getEmptyPasswordValidationError(): Promise<string> {
+    async getEmptyPasswordValidationMessage(): Promise<string> {
         return await this.locator.passwordInput.evaluate(
             (el: HTMLInputElement) => el.validationMessage
         )
