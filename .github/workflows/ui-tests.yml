@@ -1,45 +1,74 @@
 name: UI Tests
+
 on:
-    workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
-    test:
-        timeout-minutes: 60
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-            - uses: actions/setup-node@v4
-              with:
-                  node-version: lts/*
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
 
-            - name: Install dependencies
-              run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-            - name: Cache Playwright browsers
-              uses: actions/cache@v3
-              with:
-                  path: ~/.cache/ms-playwright
-                  key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-browsers-
 
-            - name: Install Playwright Browsers
-              run: npx playwright install --with-deps
+      - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps
 
-            - name: Run Playwright tests
-              run: npx playwright test
+      - name: Verify secrets are set
+        run: |
+          if [ -z "${{ secrets.DEFAULT_USER_LOGIN }}" ]; then
+            echo "❌ DEFAULT_USER_LOGIN secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.DEFAULT_USER_PASSWORD }}" ]; then
+            echo "❌ DEFAULT_USER_PASSWORD secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.BASE_URL }}" ]; then
+            echo "❌ BASE_URL secret is not set"
+            exit 1
+          fi
+          echo "✅ All required secrets are set"
 
-            - name: Upload test report
-              if: ${{ !cancelled() }}
-              uses: actions/upload-artifact@v4
-              with:
-                  name: playwright-report-${{ github.run_number }}
-                  path: playwright-report/
-                  retention-days: 30
+      - name: Run Playwright tests
+        env:
+          DEFAULT_USER_LOGIN: ${{ secrets.DEFAULT_USER_LOGIN }}
+          DEFAULT_USER_PASSWORD: ${{ secrets.DEFAULT_USER_PASSWORD }}
+          BASE_URL: ${{ secrets.BASE_URL }}
+          CI: true
+        run: npx playwright test
 
-            - name: Upload test results
-              if: ${{ !cancelled() }}
-              uses: actions/upload-artifact@v4
-              with:
-                  name: test-results-${{ github.run_number }}
-                  path: test-results/
-                  retention-days: 30
+      - name: Upload HTML report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_number }}
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Upload test results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.run_number }}
+          path: test-results/
+          retention-days: 30

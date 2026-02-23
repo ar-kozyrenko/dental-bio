@@ -6,7 +6,7 @@ export const VALID_LOGIN_DATA: LoginFormData = {
 }
 export const INVALID_EMAIL_DATA: LoginFormData = {
     email: 'mastinirke@necub2.com',
-    password: 'Ab12345$',
+    password: process.env.DEFAULT_USER_PASSWORD || '',
 }
 export const INVALID_PASSWORD_DATA: LoginFormData = {
     email: process.env.DEFAULT_USER_LOGIN || '',
@@ -15,7 +15,7 @@ export const INVALID_PASSWORD_DATA: LoginFormData = {
 
 export const EMPTY_EMAIL_DATA: LoginFormData = {
     email: '',
-    password: 'Ab12345$',
+    password: process.env.DEFAULT_USER_PASSWORD || '',
 }
 export const EMPTY_PASSWORD_DATA: LoginFormData = {
     email: process.env.DEFAULT_USER_LOGIN || '',
