@@ -5,6 +5,8 @@ import { Position } from '../types/SignUp/Position'
 import { Title } from '../types/SignUp/Title'
 import { BirthDate } from '../types/SignUp/BirthDate'
 import { BaseTestData } from './BaseTestData'
+import { SendOtpData } from '../types/SignUp/RegistrationData'
+import { HomePageTestData } from './HomePageTestData'
 
 export interface Name {
     firstName: string
@@ -76,5 +78,34 @@ export class SignUpTestData {
             confirmPassword: password,
             ...overrides,
         }
+    }
+    static createSendOtpData(
+        email: string,
+        overrides?: Partial<SendOtpData>
+    ): SendOtpData {
+        const name = this.generateName()
+        return {
+            isResend: false,
+            email,
+            password: this.generateNotValidPassword(),
+            username: HomePageTestData.generateUniqueUserName(),
+            firstName: name.firstName,
+            lastName: name.lastName,
+            birthday: null,
+            position: Position.CONSULTANT,
+            offerCode: '',
+            country: Country.ALBANIA,
+            title: Title.Dr,
+            inviteUserName: null,
+            location: 'Ukraine',
+            domain: 'dental.bio',
+            brand: 'Dentalbio',
+            vertical: 'dental',
+            ...overrides,
+        }
+    }
+    static createVerifyOtpData(email: string, otp: string): VerifyOtpData {
+        const { isResend, ...rest } = this.createSendOtpData(email)
+        return { ...rest, otp }
     }
 }
