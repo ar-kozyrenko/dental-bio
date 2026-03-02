@@ -5,7 +5,7 @@ import { Position } from '../types/SignUp/Position'
 import { Title } from '../types/SignUp/Title'
 import { BirthDate } from '../types/SignUp/BirthDate'
 import { BaseTestData } from './BaseTestData'
-import { SendOtpData } from '../types/SignUp/RegistrationData'
+import { SendOtpData, VerifyOtpData } from '../types/SignUp/RegistrationData'
 import { HomePageTestData } from './HomePageTestData'
 
 export interface Name {
@@ -64,7 +64,7 @@ export class SignUpTestData {
     static createSignUpFormData(
         overrides?: Partial<SignUpFormData>
     ): SignUpFormData {
-        const password = this.generateNotValidPassword()
+        const password = this.generateValidPassword()
         return {
             title: Title.Dr,
             email: this.generateEmail(),
@@ -87,7 +87,7 @@ export class SignUpTestData {
         return {
             isResend: false,
             email,
-            password: this.generateNotValidPassword(),
+            password: this.generateValidPassword(),
             username: HomePageTestData.generateUniqueUserName(),
             firstName: name.firstName,
             lastName: name.lastName,
