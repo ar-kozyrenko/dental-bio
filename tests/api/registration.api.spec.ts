@@ -6,29 +6,50 @@ test.describe('Registration API', () => {
     test('should register user via API with OTP verification', async ({
         apiManager,
     }) => {
-        // Шаг 1: Создаём временный инбокс
-        const { email, sidToken } = await apiManager.email.createInbox()
+        const { email, token } =
+            await test.step('Create temporary inbox', async () => {
+                const inbox = await apiManager.email.createInbox()
+                console.log(`\n📧 Registered email: ${inbox.email}`)
+                return inbox
+            })
 
-        // Шаг 2: Отправляем форму регистрации → сервер шлёт OTP на email
-        const sendOtpResponse = await apiManager.auth.sendOtp(
-            SignUpTestData.createSendOtpData(email)
-        )
-        await expect(sendOtpResponse.status()).toBe(200)
-        const sendOtpBody = await sendOtpResponse.json()
-        await expect(sendOtpBody.message).toBe('OTP sent successfully.')
+        const sendOtpData = await test.step('Send OTP', async () => {
+            const data = SignUpTestData.createSendOtpData(email)
+            console.log(`🔑 Password: ${data.password}`)
+            const response = await apiManager.auth.sendOtp(data)
+            await expect(response.status()).toBe(200)
+            const body = await response.json()
+            await expect(body.message).toBe('OTP sent successfully.')
+            return data
+        })
 
-        // Шаг 3: Ждём письмо и извлекаем OTP
-        const otp = await apiManager.email.getOtp(sidToken)
-        await expect(otp).toMatch(/^\d{6}$/)
+        const otp = await test.step('Wait for OTP email', async () => {
+            const code = await apiManager.email.getOtp(token)
+            await expect(code).toMatch(/^\d{6}$/)
+            return code
+        })
 
-        // Шаг 4: Верифицируем OTP → завершаем регистрацию
-        const verifyOtpResponse = await apiManager.auth.verifyOtp(
-            SignUpTestData.createVerifyOtpData(email, otp)
-        )
-        await expect(verifyOtpResponse.status()).toBe(200)
-        const verifyOtpBody = await verifyOtpResponse.json()
-        await expect(verifyOtpBody.message).toContain(
-            'User updated successfully'
-        )
+        const verifyOtpResponse = await test.step('Verify OTP', async () => {
+            const { isResend, ...otpDataWithoutIsResend } = sendOtpData
+            const response = await apiManager.auth.verifyOtp({
+                ...otpDataWithoutIsResend,
+                otp,
+            })
+            await expect(response.status()).toBe(200)
+            const body = await response.json()
+            await expect(body.message).toContain('User updated successfully')
+            return response
+        })
+
+        await test.step('Verify user is registered via GET /api/user', async () => {
+            const response = await apiManager.auth.getUser(verifyOtpResponse)
+            await expect(response.status()).toBe(200)
+
+            const user = await response.json()
+            await expect(user.email).toBe(email)
+            await expect(user.username).toBe(sendOtpData.username)
+            await expect(user.first_name).toBe(sendOtpData.firstName)
+            await expect(user.last_name).toBe(sendOtpData.lastName)
+        })
     })
 })

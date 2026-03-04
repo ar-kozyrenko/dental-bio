@@ -17,4 +17,22 @@ export class AuthRequests {
             data,
         })
     }
+
+    async getUser(verifyOtpResponse: APIResponse): Promise<APIResponse> {
+        // Playwright объединяет set-cookie в одну строку через \n — берём только name=value части
+        const rawCookies = verifyOtpResponse.headers()['set-cookie'] ?? ''
+        const cookies = rawCookies
+            .split('\n')
+            .map((c) => c.split(';')[0].trim())
+            .filter(Boolean)
+            .join('; ')
+
+        return await this.request.post(`${BASE_URL}/user`, {
+            headers: {
+                'content-type': 'text/plain;charset=UTF-8',
+                cookie: cookies,
+            },
+            data: { targetUserId: null },
+        })
+    }
 }

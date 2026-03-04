@@ -23,5 +23,8 @@
         "globals": "^17.0.0",
         "prettier": "^3.7.4",
         "typescript-eslint": "^8.52.0"
+    },
+    "dependencies": {
+        "tempmail.lol": "^4.4.0"
     }
 }

@@ -8,6 +8,6 @@ export class ApiManager {
 
     constructor(request: APIRequestContext) {
         this.auth = new AuthRequests(request)
-        this.email = new EmailHelper(request)
+        this.email = new EmailHelper()
     }
 }
