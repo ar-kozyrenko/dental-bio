@@ -39,11 +39,16 @@ jobs:
                     echo "❌ BASE_URL secret is not set"
                     exit 1
                   fi
+                  if [ -z "${{ secrets.MAILSLURP_API_KEY }}" ]; then
+                    echo "❌ MAILSLURP_API_KEY secret is not set"
+                    exit 1
+                  fi
                   echo "✅ All required secrets are set"
 
             - name: Run Playwright API tests
               env:
                   BASE_URL: ${{ secrets.BASE_URL }}
+                  MAILSLURP_API_KEY: ${{ secrets.MAILSLURP_API_KEY }}
                   CI: true
               run: npx playwright test tests/api
 
