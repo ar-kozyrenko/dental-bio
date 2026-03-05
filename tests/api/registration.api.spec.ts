@@ -6,7 +6,7 @@ test.describe('Registration API', () => {
     test('should register user via API with OTP verification', async ({
         apiManager,
     }) => {
-        const { email, token } =
+        const { email, inboxId } =
             await test.step('Create temporary inbox', async () => {
                 const inbox = await apiManager.email.createInbox()
                 console.log(`\n📧 Registered email: ${inbox.email}`)
@@ -24,7 +24,7 @@ test.describe('Registration API', () => {
         })
 
         const otp = await test.step('Wait for OTP email', async () => {
-            const code = await apiManager.email.getOtp(token)
+            const code = await apiManager.email.getOtp(inboxId)
             await expect(code).toMatch(/^\d{6}$/)
             return code
         })

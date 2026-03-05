@@ -25,6 +25,6 @@
         "typescript-eslint": "^8.52.0"
     },
     "dependencies": {
-        "tempmail.lol": "^4.4.0"
+        "mailslurp-client": "^16.0.0"
     }
 }
