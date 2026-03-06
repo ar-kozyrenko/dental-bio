@@ -1,4 +1,4 @@
-import { test } from '../fixtures/baseFixture'
+import { test } from '../../fixtures/baseFixture'
 import { expect } from '@playwright/test'
 import {
     VALID_LOGIN_DATA,
@@ -6,7 +6,7 @@ import {
     INVALID_PASSWORD_DATA,
     EMPTY_EMAIL_DATA,
     EMPTY_PASSWORD_DATA,
-} from '../test-data/LoginTestData'
+} from '../../test-data/LoginTestData'
 
 test.describe('Log In Flow', () => {
     test.beforeEach('Open start URL', async ({ pageManager }) => {

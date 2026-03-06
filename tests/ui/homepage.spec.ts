@@ -1,5 +1,5 @@
-import { test } from '../fixtures/baseFixture'
-import { HomePageTestData } from '../test-data/HomePageTestData'
+import { test } from '../../fixtures/baseFixture'
+import { HomePageTestData } from '../../test-data/HomePageTestData'
 
 test.beforeEach('Open the HomePage', async ({ pageManager }) => {
     await pageManager.homePage.openPage('/')

@@ -1,8 +1,8 @@
-import { test } from '../fixtures/baseFixture'
-import { SignUpTestData } from '../test-data/SignUpTestData'
-import { SignUpFormData } from '../types/SignUp/SignUpFormData'
-import { Country } from '../types/SignUp/Country'
-import { HomePageTestData } from '../test-data/HomePageTestData'
+import { test } from '../../fixtures/baseFixture'
+import { SignUpTestData } from '../../test-data/SignUpTestData'
+import { SignUpFormData } from '../../types/SignUp/SignUpFormData'
+import { Country } from '../../types/SignUp/Country'
+import { HomePageTestData } from '../../test-data/HomePageTestData'
 
 test.describe('Sign Up - Registration flow', () => {
     test.beforeEach('Claim a unique username', async ({ pageManager }) => {
