@@ -51,5 +51,21 @@ test.describe('Registration API', () => {
             await expect(user.first_name).toBe(sendOtpData.firstName)
             await expect(user.last_name).toBe(sendOtpData.lastName)
         })
+        await test.step('Delete account', async () => {
+            // хэш из перехваченного curl — временно захардкодим для проверки
+            const NEXT_ACTION_HASH = '153ba030649f5c8c946390dfa0eb65b20631be6b'
+
+            const response = await apiManager.auth.deleteAccount(
+                verifyOtpResponse,
+                NEXT_ACTION_HASH
+            )
+
+            await expect(response.status()).toBe(303)
+        })
+
+        await test.step('Verify account is deleted', async () => {
+            const response = await apiManager.auth.getUser(verifyOtpResponse)
+            await expect(response.status()).toBe(500)
+        })
     })
 })
