@@ -7,7 +7,8 @@ const APP_URL = 'https://dental.bio'
 export class AuthRequests {
     constructor(private request: APIRequestContext) {}
 
-    private extractCookies(response: APIResponse): string {
+    // static — доступен снаружи без инстанса, используется в AccountLifecycle
+    static extractCookies(response: APIResponse): string {
         const rawCookies = response.headers()['set-cookie'] ?? ''
         return rawCookies
             .split('\n')
@@ -29,7 +30,7 @@ export class AuthRequests {
     }
 
     async getUser(verifyOtpResponse: APIResponse): Promise<APIResponse> {
-        const cookies = this.extractCookies(verifyOtpResponse)
+        const cookies = AuthRequests.extractCookies(verifyOtpResponse)
 
         return await this.request.post(`${BASE_URL}/user`, {
             headers: {
@@ -44,7 +45,7 @@ export class AuthRequests {
         verifyOtpResponse: APIResponse,
         nextActionHash: string
     ): Promise<APIResponse> {
-        const cookies = this.extractCookies(verifyOtpResponse)
+        const cookies = AuthRequests.extractCookies(verifyOtpResponse)
 
         return await this.request.post(`${APP_URL}/dashboard/settings`, {
             headers: {
