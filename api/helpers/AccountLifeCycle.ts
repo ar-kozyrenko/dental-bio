@@ -8,11 +8,15 @@ import { AuthRequests } from '../requests/AuthRequests'
 import { EmailHelper } from './EmailHelper'
 import { SignUpTestData } from '../../test-data/SignUpTestData'
 
-const SESSION_FILE = 'session.json'
+//currently there is an issue with delete user in the app
+//MailSlurp reached the free limit
+//The methods are NOT relevant untill delete is fied and MailSlurp hasbeen unlocked
 
+export const SESSION_FILE = 'session.json'
 export class AccountLifecycle {
+    private browser!: Browser
     private verifyOtpResponse!: APIResponse
-    private apiContext!: APIRequestContext // собственный контекст
+    private apiContext!: APIRequestContext
     private auth!: AuthRequests
     private email!: EmailHelper
 
@@ -20,8 +24,10 @@ export class AccountLifecycle {
     public username!: string
     public password!: string
 
+    // Creates a new account via OTP registration and saves the authenticated
+    // browser session to a file for reuse across tests via storageState.
     async setup(browser: Browser): Promise<void> {
-        // Создаём собственный APIRequestContext — не зависит от fixture lifecycle
+        this.browser = browser
         this.apiContext = await request.newContext()
         this.auth = new AuthRequests(this.apiContext)
         this.email = new EmailHelper()
@@ -73,29 +79,53 @@ export class AccountLifecycle {
             .filter((c) => c.name && c.value)
 
         // 6. Сохраняем сессию в файл
-        const context = await browser.newContext()
+        const context = await this.browser.newContext()
         await context.addCookies(parsedCookies)
         await context.storageState({ path: SESSION_FILE })
         await context.close()
 
-        console.log(`\n🟢 Account created: ${this.userEmail}`)
-        console.log(`🔑 Password: ${this.password}`)
-        console.log(`💾 Session saved to ${SESSION_FILE}`)
+        console.log(`\n Account created: ${this.userEmail}`)
+        console.log(`Password: ${this.password}`)
+        console.log(`Username: ${this.username}`)
+        console.log(`Session saved to ${SESSION_FILE}`)
     }
 
-    async teardown(nextActionHash: string): Promise<void> {
+    // Deletes account via UI: navigates to settings, clicks Delete Bio → confirms in popup
+    async deleteAccountViaUI(): Promise<void> {
+        const context = await this.browser.newContext({
+            storageState: SESSION_FILE,
+        })
+        const page = await context.newPage()
+
+        await page.goto('https://dental.bio/dashboard/settings')
+        await page.waitForLoadState('domcontentloaded')
+
+        const deleteButton = page.getByRole('button', { name: 'Delete Bio' })
+        await deleteButton.scrollIntoViewIfNeeded()
+        await deleteButton.click()
+
+        const confirmButton = page
+            .getByRole('dialog')
+            .getByRole('button', { name: 'Delete', exact: true })
+        await confirmButton.waitFor({ state: 'visible' })
+        const requestPromise = page.waitForRequest(
+            (request) =>
+                request.url().includes('/dashboard/settings') &&
+                request.method() === 'POST'
+        )
+        await confirmButton.click()
+        await requestPromise
+
+        await context.close()
+    }
+
+    async teardown(): Promise<void> {
         if (!this.verifyOtpResponse) {
             throw new Error('Cannot delete account: setup() was not called')
         }
 
-        // 1. Удалить аккаунт
-        const deleteResponse = await this.auth.deleteAccount(
-            this.verifyOtpResponse,
-            nextActionHash
-        )
-        if (deleteResponse.status() !== 303) {
-            throw new Error(`deleteAccount failed: ${deleteResponse.status()}`)
-        }
+        // 1. Удаляем аккаунт через UI
+        await this.deleteAccountViaUI()
 
         // 2. Убедиться что аккаунт удалён
         const userResponse = await this.auth.getUser(this.verifyOtpResponse)
@@ -105,9 +135,9 @@ export class AccountLifecycle {
             )
         }
 
-        // 3. Закрываем собственный APIRequestContext
+        // 3. Закрываем собственный API контекст
         await this.apiContext.dispose()
 
-        console.log(`\n🔴 Account deleted: ${this.userEmail}`)
+        console.log(`\n Account deleted: ${this.userEmail}`)
     }
 }
